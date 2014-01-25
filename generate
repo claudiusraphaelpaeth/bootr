@@ -62,7 +62,8 @@ else
   exit 255
 fi
 
-${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o "$mount/grubx64.efi" boot/grub/grub.cfg
+mkdir -p "$mount/EFI/BOOT"
+${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o "$mount/EFI/BOOT/bootx64.efi" boot/grub/grub.cfg
 
 rm -rf "$dir"
 
