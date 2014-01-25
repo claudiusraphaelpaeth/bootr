@@ -13,6 +13,7 @@ EOF
 
 # write the config in the pool
 
+zfs list "${root_pool}/grub" >/dev/null 2>&1 || zfs create "${root_pool}/grub"
 zfs list -Ho name,eu.nathan7:boot -r "${root_pool}" | awk -F '\t' 'tolower($2) == "true" {print $1}' | cut -d/ -f2- | while read dataset; do
   cat <<EOF
 menuentry "$dataset" {
