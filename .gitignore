@@ -1,2 +1,4 @@
 *.efi
+efi
+EFI
 boot.cfg
