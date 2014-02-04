@@ -33,20 +33,23 @@ Part. #     Size        Partition Type            Partition Name
 
 ### Create your LUKS partition
 
-  Generate a UUID: `export LUKS=$(uuidgen)`
-  Format your LUKS container: `cryptsetup luksFormat /dev/disk/by-partlabel/storage --uuid=$LUKS`
-  Open your LUKS container: `cryptsetup luksFormat /dev/disk/by-uuid/$LUKS $LUKS`
+  * Generate a UUID: `export LUKS=$(uuidgen)`
+  * Format your LUKS container: `cryptsetup luksFormat /dev/disk/by-partlabel/storage --uuid=$LUKS`
+  * Open your LUKS container: `cryptsetup luksFormat /dev/disk/by-uuid/$LUKS $LUKS`
 
 ### Create a zpool
 
-  `zpool create storage /dev/mapper/$LUKS`
+  Just `zpool create storage /dev/mapper/$LUKS`
 
 ### Create filesystems
 
-  One for your homedir: `zfs create -o mountpoint=/home storage/home`
-  One for your distro's rootfs: `zfs create storage/arch`
+  * One for your homedir: `zfs create -o mountpoint=/home storage/home`
+  * One for your distro's rootfs: `zfs create storage/arch`
 
-  An aside, if you're setting up Gentoo: I prefer to keep my Portage tree outside my rootfs so my Portage tree doesn't get caught in rootfs snapshots.
+
+#### on Gentoo
+
+  I prefer to keep my Portage tree outside my rootfs so my Portage tree doesn't get caught in rootfs snapshots.
   For that reason, I have a `storage/gentoo/root` filesystem and a seperate `storage/gentoo/portage` filesystem. My `/usr/portage` on Gentoo is a symlink to `/storage/gentoo/portage`.
 
 ### Bootstrap a system
@@ -57,34 +60,35 @@ Part. #     Size        Partition Type            Partition Name
 ### Pass our zpool over
 
   First, let's make sure that we have our zpool available to us inside.
-  `mkdir /storage/arch/storage`
-  `mount --rbind /storage /storage/arch/storage`
+  * `mkdir -pv /storage/arch/storage`
+  * `mount --rbind /storage /storage/arch/storage`
 
 ### Get into your fresh system
 
   Chroot into your system, hook up all the special filesystems, etc.
-  From an Arch live system, it's simply `arch-chroot /storage/arch /bin/su -`.
+  From an Arch live system, all of this is simply `arch-chroot /storage/arch /bin/su -`.
 
 ### Mounting (U)EFI partition
 
   Run `blkid`, and find your (U)EFI partition in the output.
 
   For me, it looks like this: `/dev/sda2: UUID="25B3-C8E7" TYPE="vfat" PARTLABEL="EFI" PARTUUID="984bf16f-ae4b-f54b-a254-aef3ac0b2b9a"`
-  Add a line to your `/etc/fstab` to match: `UUID=25B3-C8E7 /boot/efi vfat rw,noatime 0 2`
-  Make sure `/boot/efi` exists: `mkdir -pv /boot/efi`
-  And mount 'em all: `mount -a`
+
+  * Add a line to your `/etc/fstab` to match: `UUID=25B3-C8E7 /boot/efi vfat rw,noatime 0 2`
+  * Make sure `/boot/efi` exists: `mkdir -pv /boot/efi`
+  * And mount 'em all: `mount -a`
 
 ### Install bootr
 
-  `git clone https://github.com/nathan7/bootr /boot/efi`
-  Create your first config: `/boot/efi/generate`
-  Edit your fresh config: `nano /boot/efi/boot.cfg`
-  Stick your LUKS partition's UUID in there (whatever the device in `/dev/mapper` is called).
-  If you're using a different pool name, change that too.
+  * `git clone https://github.com/nathan7/bootr /boot/efi`
+  * Create your first config: `/boot/efi/generate`
+  * Edit your fresh config: `nano /boot/efi/boot.cfg`
+  * Stick your LUKS partition's UUID in there (whatever the device in `/dev/mapper` is called)
+  * (if you're using a different pool name, change that too)
 
 ### Make your distro bootable
 
-  First things first, make yourself a `/boot/grub.cfg`
+  First things first, make yourself a `/boot/grub.cfg`.
   My Arch `grub.cfg` looks like this:
 ```
 # vim: ft=grub
@@ -98,29 +102,30 @@ initrd ${boot_path}/initramfs-linux.img
   `zfs set eu.nathan7:boot=true storage/arch` should do the trick.
 
   You'll also want to make sure your fresh system supports LUKS and ZFS.
-  If you're on Arch:
-  Make sure your `/etc/mkinitpcio.conf` has `HOOKS="base udev block keyboard encrypt zfs"`
+
+#### on Arch
+
+  Make sure your `/etc/mkinitpcio.conf` has `HOOKS="base udev block keyboard encrypt zfs"`.
+
   Add this to your `/etc/pacman.conf`:
 ```
 [zfs]
 SigLevel = Optional
 Server = http://nathan7.eu/stuff/arch/$repo/$arch
 ```
-  And run `pacman -Sy zfs`
+
+  Run `pacman -Sy zfs` to make it all work.
 
 ### Generate your GRUB executable
 
   This is really all that bootr itself does, given that your system is set up as explained above.
-  `/boot/efi/generate`
+  Simply run `/boot/efi/generate` and all should be sorted.
 
 ### Let go
 
-  We'll unmount everything and export the pool.
-  `umount /storage /boot/efi`
-
-  Let's exit the chroot: `exit`.
-
-  Now, back in our actual system: `zpool export storage`
+  * We'll unmount everything and export the pool: `umount /storage /boot/efi`.
+  * Let's exit the chroot: `exit`.
+  * Now, back in our actual system: `zpool export storage`
 
 ### Reboot
 
