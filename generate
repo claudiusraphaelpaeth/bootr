@@ -3,6 +3,8 @@
 mount="$(dirname "$(readlink -f "$0")")"
 cd "$mount"
 
+echo "reading boot.cfg" >&2
+
 [ -f "${mount}/boot.cfg" ] && source loadconfig || fresh=true
 
 [ -z "${root_uuid}" ] && root_uuid="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
@@ -15,6 +17,8 @@ set root_uuid="${root_uuid}"
 set root_pool="${root_pool}"
 EOF
 
+echo "built boot.cfg" >&2
+
 if [ -n "$fresh" ]; then
   echo "first run detected" >&2
   echo "generated base boot.cfg" >&2
@@ -22,10 +26,20 @@ if [ -n "$fresh" ]; then
   exit 0
 fi
 
+echo>&2
 # write the config in the pool
 
-zfs list "${root_pool}/grub" >/dev/null 2>&1 || zfs create "${root_pool}/grub"
+echo "creating in-pool GRUB config" >&2
+
+if zfs list "${root_pool}/grub" >/dev/null 2>&1; then
+  echo "found GRUB filesystem" >&2
+else
+  zfs create "${root_pool}/grub"
+  echo "created GRUB filesystem" >&2
+fi
+
 zfs list -Ho name,eu.nathan7:boot -r "${root_pool}" | awk -F '\t' 'tolower($2) == "true" {print $1}' | cut -d/ -f2- | while read dataset; do
+  echo "adding boot entry $dataset" >&2
   cat <<EOF
 menuentry "$dataset" {
   set root_fs=\${root_pool}/\${chosen}
@@ -35,8 +49,13 @@ menuentry "$dataset" {
 }
 EOF
 done > "/${root_pool}/grub/grub.cfg"
+echo "built in-pool GRUB config" >&2
+
+echo >&2
 
 # set ourselves up in a temporary dir and start building our GRUB image
+echo "building EFI GRUB image" >&2
+
 dir="$(mktemp -d)"
 cd "$dir"
 mkdir -p boot/grub
@@ -78,3 +97,4 @@ ${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga fo
 
 rm -rf "$dir"
 
+echo "done" >&2
