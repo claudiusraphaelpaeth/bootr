@@ -2,7 +2,11 @@
 # set things up
 mount="$(dirname "$(readlink -f "$0")")"
 cd "$mount"
-source loadconfig
+
+[ -f "${mount}/boot.cfg" ] && source loadconfig || fresh=true
+
+[ -z "${root_uuid}" ] && root_uuid="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+[ -z "${root_pool}" ] && root_pool="storage"
 
 # regenerate boot.cfg
 cat > boot.cfg <<EOF
@@ -10,6 +14,13 @@ cat > boot.cfg <<EOF
 set root_uuid="${root_uuid}"
 set root_pool="${root_pool}"
 EOF
+
+if [ -n "$fresh" ]; then
+  echo "first run detected" >&2
+  echo "generated base boot.cfg" >&2
+  echo "exiting" >&2
+  exit 0
+fi
 
 # write the config in the pool
 
