@@ -92,7 +92,7 @@ Part. #     Size        Partition Type            Partition Name
   My Arch `grub.cfg` looks like this:
 ```
 # vim: ft=grub
-linux ${boot_path}/vmlinuz-linux zfs=${root_fs} cryptdevice=/dev/disk/by-uuid/${root_uuid}:${root_uuid}
+linux ${boot_path}/vmlinuz-linux zfs=${root_fs} cryptdevice=/dev/disk/by-uuid/${root_uuid}:${root_uuid} rw
 initrd ${boot_path}/initramfs-linux.img
 ```
 
