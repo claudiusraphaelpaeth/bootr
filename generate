@@ -61,7 +61,6 @@ cd "$dir"
 mkdir -p boot/grub
 
 cat "$mount/boot.cfg" - >> boot/grub/grub.cfg <<EOF
-# vim: ft=grub
 set timeout=0
 
 if keystatus --shift; then
