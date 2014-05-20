@@ -39,7 +39,8 @@ set gfxpayload=keep
 set menu_color_normal=cyan/blue
 set menu_color_highlight=blue/cyan
 
-cryptomount -u \${root_uuid_raw}
+while ! cryptomount -u \${root_uuid_raw}; do true; done
+echo access granted
 
 if keystatus --shift; then
   set timeout=-1
