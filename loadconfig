@@ -1,2 +1,2 @@
 # vim: ft=sh
-source <(grep -E '^set \w+=' "${mount}/boot.cfg" | cut -d' ' -f2-)
+source <(grep -E '^set \w+=' "boot.cfg" | cut -d' ' -f2-)
