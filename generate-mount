@@ -1,0 +1,20 @@
+#!/bin/bash -e
+dir="$(dirname "$(readlink -f "$0")")"
+source config.sh
+
+if ! mountpoint -q "$efi"; then
+  echo "error: $efi is not a mountpoint" >&2
+  exit 1
+fi
+
+echo "generating mountscript" >&2
+
+cat > "$efi/mount" <<EOF
+#!/bin/sh -e
+cryptsetup luksOpen UUID=$uuid $uuid
+zpool import $pool || zpool import -f $pool
+EOF
+
+chmod +x "$efi/mount" || true
+
+echo "generated mountscript" >&2

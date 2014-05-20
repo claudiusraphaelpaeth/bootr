@@ -1,6 +1,0 @@
-#!/bin/bash -e
-mount="$(dirname "$(readlink -f "$0")")"
-source "$mount/loadconfig"
-cryptsetup luksOpen "/dev/disk/by-uuid/${root_uuid}" "${root_uuid}"
-zpool export "${root_pool}"
-zpool import "${root_pool}" || zpool import -f "${root_pool}"

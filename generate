@@ -3,3 +3,4 @@ dir="$(dirname "$(readlink -f "$0")")"
 cd "$dir"
 ./generate-pool
 ./generate-image
+./generate-mount
