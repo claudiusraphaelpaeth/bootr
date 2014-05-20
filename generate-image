@@ -75,5 +75,6 @@ if [ "$bios" = y ] || [ "$bios" = yes ] || [ "$bios" = true ] || [ "$bios" = 1 ]
   disk_dev="/dev/$(lsblk -snro name "$efi_dev" | tail -n+2 | head -n1)"
   [ -b "$disk_dev" ] || { echo "can't find disk device" >&2; exit 1; }
   grub-install --force --target i386-pc --install-modules="$bios_modules" --modules "$bios_modules" --boot-directory "$efi" "$disk_dev"
+  cp "$tmp/boot/grub/grub.cfg" "$efi/grub/"
   echo "built BIOS GRUB" >&2
 fi
