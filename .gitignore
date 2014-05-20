@@ -1,2 +1,4 @@
 boot.cfg
 grub.cfg
+*.key
+*.crt

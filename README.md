@@ -137,3 +137,10 @@ Server = http://nathan7.eu/stuff/arch/$repo/$arch
   You might want to regenerate your initramfs to include the `zpool.cache` and `/etc/hostid` generated during your first boot.
   Have fun!
 
+## Extras
+### Signing your EFI executable
+
+  * Generate a key: `openssl req -new -x509 -newkey rsa:2048 -keyout boot.key -out boot.crt -days 365`
+  * Add `sign="boot"` to your boot.cfg
+  * Regenerate your boot image: `./generate-image`
+
