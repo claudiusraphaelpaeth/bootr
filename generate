@@ -10,7 +10,7 @@ pool="$(cut -d/ -f1 <<< "$dataset")"
 dataset_name="$(cut -d/ -f2- <<< "$dataset")"
 
 efi="/boot/efi"
-if [ ! mountpoint -q "$efi" ]; then
+if ! mountpoint -q "$efi"; then
   echo "error: $efi is not a mountpoint" >&2
   exit 1
 fi
