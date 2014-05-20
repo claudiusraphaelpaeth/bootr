@@ -19,12 +19,12 @@ echo "reading boot.cfg" >&2
 
 [ -f "${dir}/boot.cfg" ] && source loadconfig || fresh=true
 
-[ -z "${root_uuid}" ] && root_uuid="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+[ -z "${uuid}" ] && uuid="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
 
 # regenerate boot.cfg
 cat > boot.cfg <<EOF
 # vim: ft=grub
-set root_uuid="${root_uuid}"
+set uuid="${uuid}"
 EOF
 
 echo "built boot.cfg" >&2
@@ -41,7 +41,7 @@ echo>&2
 
 echo "creating in-pool GRUB config" >&2
 
-zfs list -Ho name,eu.nathan7:boot -r "${root_pool}" | awk -F '\t' 'tolower($2) == "true" {print $1}' | cut -d/ -f2- | while read dataset; do
+zfs list -Ho name,eu.nathan7:boot -r "${pool}" | awk -F '\t' 'tolower($2) == "true" {print $1}' | cut -d/ -f2- | while read dataset; do
   echo "adding boot entry $dataset" >&2
   cat <<EOF
 menuentry "$dataset" {
@@ -66,8 +66,8 @@ mkdir -p boot/grub
 cat >> boot/grub/grub.cfg <<EOF
 # vim: ft=grub
 set root_pool="${pool}"
-set root_uuid="${root_uuid}"
-set root_uuid_raw="$(sed "s/-//g" <<< "$root_uuid")"
+set root_uuid="${uuid}"
+set root_uuid_raw="$(sed "s/-//g" <<< "${uuid}")"
 set timeout=0
 
 if keystatus --shift; then
