@@ -52,8 +52,8 @@ EOF
 (cd "$tmp" && ${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o bootx64.efi boot/grub/grub.cfg)
 
 if [ -n "$sign" ]; then
-  sbsign --key "${sign}.key" --cert "${sign}.crt" --output bootx64.efi.signed bootx64.efi
-  mv bootx64.efi.signed bootx64.efi
+  sbsign --key "${sign}.key" --cert "${sign}.crt" --output "$tmp/bootx64.efi.signed" "$tmp/bootx64.efi"
+  mv "$tmp/bootx64.efi.signed" "$tmp/bootx64.efi"
 fi
 
 mkdir -p "$efi/EFI/BOOT"
