@@ -1,0 +1,19 @@
+#!/bin/bash -e
+dir="$(dirname "$(readlink -f "$0")")"
+source config.sh
+
+echo "building in-pool GRUB config" >&2
+
+zfs list -Ho name,eu.nathan7:boot -r "${pool}" | awk -F '\t' 'tolower($2) == "true" {print $1}' | cut -d/ -f2- | while read dataset; do
+  echo "adding boot entry $dataset" >&2
+  cat <<EOF
+menuentry "$dataset" {
+  set root_fs=\${root_pool}/\${chosen}
+  set root_path=/\${chosen}/@
+  set boot_path=\${root_path}/boot
+  source \${boot_path}/grub.cfg
+}
+EOF
+done > grub.cfg
+
+echo "built in-pool GRUB config" >&2

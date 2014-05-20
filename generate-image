@@ -1,0 +1,55 @@
+#!/bin/bash -e
+dir="$(dirname "$(readlink -f "$0")")"
+source config.sh
+
+if ! mountpoint -q "$efi"; then
+  echo "error: $efi is not a mountpoint" >&2
+  exit 1
+fi
+
+if command -v grub-mkstandalone > /dev/null; then
+  grub_mkstandalone=grub-mkstandalone
+elif command -v grub2-mkstandalone > /dev/null; then
+  grub_mkstandalone=grub2-mkstandalone
+else
+  echo "can't find grub-mkstandalone" >&2
+  exit 255
+fi
+
+# set ourselves up in a temporary dir and start building our GRUB image
+echo "building EFI GRUB image" >&2
+
+tmp="$(mktemp -d)"
+trap "{ rm -rf $tmp; exit 255; }" EXIT
+
+cd "$tmp"
+mkdir -p boot/grub
+
+cat >> boot/grub/grub.cfg <<EOF
+# vim: ft=grub
+set root_pool="${pool}"
+set root_uuid="${uuid}"
+set root_uuid_raw="$(sed "s/-//g" <<< "${uuid}")"
+set timeout=0
+
+if keystatus --shift; then
+  set timeout=-1
+fi
+
+set gfxmode=auto
+set gfxpayload=keep
+set menu_color_normal=cyan/blue
+set menu_color_highlight=blue/cyan
+
+cryptomount -u \${root_uuid_raw}
+
+if keystatus --shift; then
+  set timeout=-1
+fi
+
+search --no-floppy --label --set \${root_pool}
+source /${dataset_name}/@/grub.cfg
+EOF
+
+mkdir -p "$efi/EFI/BOOT"
+${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o "$efi/EFI/BOOT/bootx64.efi" boot/grub/grub.cfg
