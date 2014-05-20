@@ -1,5 +1,6 @@
 #!/bin/bash -e
 dir="$(dirname "$(readlink -f "$0")")"
+cd "$dir"
 source config.sh
 
 echo "building in-pool GRUB config" >&2

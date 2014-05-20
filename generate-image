@@ -1,5 +1,6 @@
 #!/bin/bash -e
 dir="$(dirname "$(readlink -f "$0")")"
+cd "$dir"
 source config.sh
 
 if ! mountpoint -q "$efi"; then
