@@ -61,6 +61,8 @@ echo >&2
 echo "building EFI GRUB image" >&2
 
 tmp="$(mktemp -d)"
+trap "{ rm -rf $tmp; exit 255; }" EXIT
+
 cd "$tmp"
 mkdir -p boot/grub
 
@@ -101,7 +103,5 @@ fi
 
 mkdir -p "$efi/EFI/BOOT"
 ${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o "$efi/EFI/BOOT/bootx64.efi" boot/grub/grub.cfg
-
-rm -rf "$tmp"
 
 echo "done" >&2
