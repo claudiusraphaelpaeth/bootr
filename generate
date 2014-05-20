@@ -17,22 +17,23 @@ fi
 
 echo "reading boot.cfg" >&2
 
-[ -f "${dir}/boot.cfg" ] && source loadconfig || fresh=true
-
+[ -f boot.cfg ] && source boot.cfg || fresh=true
 [ -z "${uuid}" ] && uuid="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-
-# regenerate boot.cfg
-cat > boot.cfg <<EOF
-# vim: ft=grub
-set uuid="${uuid}"
-EOF
-
-echo "built boot.cfg" >&2
 
 if [ -n "$fresh" ]; then
   echo "first run detected" >&2
+  cat > boot.cfg <<EOF
+# vim: ft=sh
+uuid="${uuid}"
+EOF
   echo "generated base boot.cfg" >&2
   echo "exiting" >&2
+  exit 0
+fi
+
+if [ "$uuid" = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" ]; then
+  echo "error: invalid UUID" >&2
+  echo "you probably haven't edited your boot.cfg yet" >&2
   exit 0
 fi
 
