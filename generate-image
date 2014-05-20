@@ -22,10 +22,8 @@ echo "building EFI GRUB image" >&2
 tmp="$(mktemp -d)"
 trap "{ rm -rf $tmp; }" EXIT
 
-cd "$tmp"
-mkdir -p boot/grub
-
-cat >> boot/grub/grub.cfg <<EOF
+mkdir -p "$tmp/boot/grub"
+cat >> "$tmp/boot/grub/grub.cfg" <<EOF
 # vim: ft=grub
 set root_pool="${pool}"
 set root_uuid="${uuid}"
@@ -51,14 +49,14 @@ search --no-floppy --label --set \${root_pool}
 source /${dataset_name}/@/grub.cfg
 EOF
 
-mkdir -p "$efi/EFI/BOOT"
-${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o bootx64.efi boot/grub/grub.cfg
+(cd "$tmp" && ${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o bootx64.efi boot/grub/grub.cfg)
 
 if [ -n "$sign" ]; then
   sbsign --key "${sign}.key" --cert "${sign}.crt" --output bootx64.efi.signed bootx64.efi
   mv bootx64.efi.signed bootx64.efi
 fi
 
-mv "bootx64.efi" "$efi/EFI/BOOT/bootx64.efi"
+mkdir -p "$efi/EFI/BOOT"
+mv "$tmp/bootx64.efi" "$efi/EFI/BOOT/bootx64.efi"
 
 echo "built EFI GRUB image" >&2
