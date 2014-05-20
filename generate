@@ -61,6 +61,7 @@ cd "$dir"
 mkdir -p boot/grub
 
 cat "$mount/boot.cfg" - >> boot/grub/grub.cfg <<EOF
+set root_uuid_raw="$(sed "s/-//g" <<< "$root_uuid")"
 set timeout=0
 
 if keystatus --shift; then
@@ -72,7 +73,7 @@ set gfxpayload=keep
 set menu_color_normal=cyan/blue
 set menu_color_highlight=blue/cyan
 
-cryptomount -a
+cryptomount -u \${root_uuid_raw}
 
 if keystatus --shift; then
   set timeout=-1
