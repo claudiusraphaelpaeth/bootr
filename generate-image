@@ -54,4 +54,4 @@ EOF
 mkdir -p "$efi/EFI/BOOT"
 ${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o "$efi/EFI/BOOT/bootx64.efi" boot/grub/grub.cfg
 
-exit 0
+echo "built EFI GRUB image" >&2
