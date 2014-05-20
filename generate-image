@@ -54,6 +54,11 @@ EOF
 mkdir -p "$efi/EFI/BOOT"
 ${grub_mkstandalone} -O x86_64-efi --modules='gfxterm gfxmenu efi_gop efi_uga font part_gpt part_msdos luks zfs' --locales='en@quot' --themes='' -o bootx64.efi boot/grub/grub.cfg
 
+if [ -n "$sign" ]; then
+  sbsign --key "${sign}.key" --cert "${sign}.crt" --output bootx64.efi.signed bootx64.efi
+  mv bootx64.efi.signed bootx64.efi
+fi
+
 mv "bootx64.efi" "$efi/EFI/BOOT/bootx64.efi"
 
 echo "built EFI GRUB image" >&2
