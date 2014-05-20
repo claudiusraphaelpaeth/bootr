@@ -20,7 +20,7 @@ fi
 echo "building EFI GRUB image" >&2
 
 tmp="$(mktemp -d)"
-trap "{ rm -rf $tmp; exit 255; }" EXIT
+trap "{ rm -rf $tmp; }" EXIT
 
 cd "$tmp"
 mkdir -p boot/grub
