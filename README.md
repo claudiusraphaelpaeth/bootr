@@ -80,11 +80,11 @@ Part. #     Size        Partition Type            Partition Name
 
 ### Install bootr
 
-  * `git clone https://github.com/nathan7/bootr /boot/efi`
-  * Create your first config: `/boot/efi/generate`
-  * Edit your fresh config: `nano /boot/efi/boot.cfg`
+  * Make a dataset for it: `zfs create storage/boot`
+  * `git clone https://github.com/nathan7/bootr /storage/boot`
+  * Create your first config: `/storage/boot/generate`
+  * Edit your fresh config: `nano /storage/boot/boot.cfg`
   * Stick your LUKS partition's UUID in there (whatever the device in `/dev/mapper` is called)
-  * (if you're using a different pool name, change that too)
 
 ### Make your distro bootable
 
