@@ -72,6 +72,8 @@ echo "built EFI GRUB image" >&2
 if [ "$bios" = y ] || [ "$bios" = yes ] || [ "$bios" = true ] || [ "$bios" = 1 ]; then
   echo "building BIOS GRUB" >&2
   efi_dev="$(mount | awk 'BEGIN { ret = 1; } $3 == mountpoint { print $1; ret = 0; exit; } END { exit ret; }' mountpoint="$efi")" || { echo "could not find boot partition" >&2; exit 1; }
-  grub-install --target i386-pc --install-modules="$bios_modules" --modules "$bios_modules" --boot-directory "$efi" "$efi_dev"
+  disk_dev="/dev/$(lsblk -snro name "$efi_dev" | tail -n+2 | head -n1)"
+  [ -b "$disk_dev" ] || { echo "can't find disk device" >&2; exit 1; }
+  grub-install --force --target i386-pc --install-modules="$bios_modules" --modules "$bios_modules" --boot-directory "$efi" "$disk_dev"
   echo "built BIOS GRUB" >&2
 fi
