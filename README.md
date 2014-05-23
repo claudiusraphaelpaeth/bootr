@@ -4,7 +4,7 @@
 
 ## Installation
 
-  The recommended bootdisk for following this is [my ZFS-enabled Arch live system](http://nathan7.eu/stuff/arch/zfs/live.iso).
+  The recommended bootdisk for following this is [my ZFS-enabled Arch live system](http://nathan7.eu/stuff/archlinux-2014.01.26-dual.iso).
 
   I'm assuming you're calling your zpool `storage`, just replace it everywhere if you have an objection to that. `rpool` is a popular choice.
   I run Arch Linux, so my instructions will have `arch` sprinkled through them. Adjust to taste.
